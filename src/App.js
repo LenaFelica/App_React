@@ -1,16 +1,82 @@
 import React, { useMemo, useRef, useState } from "react";
-// import Counter from "./components/Counter ";
 import '../src/styles/App.css';
 import PostFilter from "./components/PostFilter";
 import PostForm from "./components/PostForm";
-import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
-import MyInput from "./components/UI/input/MyInput";
-import MySelect from "./components/UI/select/MySelect";
+import MyModal from "./components/UI/modal/MyModal";
 
-//* массив объектов преобразуем в массив реакт-элементов (Map)  
-//* map - позволяет получить новый массив, преобразовав все элменты
+
+function App() {
+  const [posts, setPosts] = useState( [
+   {id: 1, title: 'aa', body: 'descripti'},
+   {id: 2, title: 'bb', body: 'frt'},
+   {id: 3, title: 'dd', body: 'nhn'},
+   {id: 4, title: 'cc', body: 'dqfwq'},
+  ])
+
+//* доступ к PostFilter в родительском компоненте
+const[filter, setFilter] = useState({sort: '', query:''})
+
+const [modal, setModal] = useState(false)
+
+//* сортировка с состоянием
+const sortedPosts = useMemo(() => {
+   console.log('отработала функция сортед постс')
+   if(filter.sort) {
+      return  [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]))
+   } else {
+     return posts;
+   }
+},[filter.sort, posts])
+
+const sortAndSearchPosts = useMemo(() => {
+    return sortedPosts.filter((post) => post.title.toLowerCase().includes(filter.query.toLowerCase()))
+}, [filter.query, sortedPosts])
+
+const createPost = (newPost) => {
+   setPosts([...posts, newPost])
+   setModal(false)
+} 
+
+
+// получаем пост из дочернего компонента
+const removePost = (post) => {
+   setPosts(posts.filter(p => p.id != post.id))
+}
+
+return (
+   <div className="app">
+      <MyButton style={{marginTop: 15}}
+         onClick={() => setModal(true)}
+      >
+         Добавить пост
+      </MyButton>
+      <MyModal 
+         visible={modal}
+         setVisible = {setModal} 
+      >
+      <PostForm create={createPost} />
+      </MyModal>
+      
+      <hr style={{margin: '15px 0'}}/>
+      <PostFilter 
+        filter={filter} 
+        setFilter={setFilter}
+      />
+      <PostList remove={removePost} posts={sortAndSearchPosts} title="Список постов по JavaScript"/>
+   </div>
+  );
+}
+
+export default App;
+
+//* --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+//* Услоная отрисовка:
+// {sortAndSearchPosts.length !== 0
+//    ? <PostList remove={removePost} posts={sortAndSearchPosts} title="Список постов по JavaScript"/>
+//    : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
+//  }      
 
 //* получаем данный из управляемого инпута:
 // const[title, setTitle] = useState('');
@@ -29,7 +95,7 @@ import MySelect from "./components/UI/select/MySelect";
 //      body,
 //   }
 
-     //!  ***   запомнить НАВСЕГЛА  - важно!! - добавление нового поста - развернуть старый масив и обавить новый пост
+     //!  ***   запомнить НАВСЕГЛА  - важно!! - добавление нового поста - развернуть старый массив и добавить новый пост
    //   setPosts([...posts, {...post, id: Date.now()}]) // добавляем ссозданный объект в массив постов - не изменем состояние напрямую, вызываем setPosts и передаем туда новый массив [], куда разворачиваем старый массив с постами и добавяем новый ерез запятую
    //   setTitle('') // после добавление очиаем поле ввода в инпуте для тайтла
    //   setBody('') // после добавление очиаем поле ввода в инпуте для боди
@@ -37,86 +103,8 @@ import MySelect from "./components/UI/select/MySelect";
 //* и так как мы реализоали двустороннее связывание, то инпуты при таком повдении у нас очистятся - компонент управляяемы
 //
 //* Так ниже мы будем проверять, если постов нет - длины постов нет - то мы будем выводить надпись - ПОСТЫ не найдены!
-//! Это называетс Услова отрисовка!!
-// {posts.length - длина постов есть(посты есть)
-//    ? <PostList remove={removePost} posts={posts} title="Список постов по JavaScript"/>
-//    : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
-//  }
-//
-
-function App() {
-  const [posts, setPosts] = useState( [
-   {id: 1, title: 'aa', body: 'descripti'},
-   {id: 2, title: 'bb', body: 'frt'},
-   {id: 3, title: 'dd', body: 'nhn'},
-   {id: 4, title: 'cc', body: 'dqfwq'},
-  ])
-
-//* доступ к PostFilter в родительс4ом компоненте
-const[filter, setFilter] = useState({sort: '', query:''})
-
-//* При этом, состояни selectedSort и seachQuery удаляем и заменяем на filter
-//* Инициализируя его объектом ({sort:'', query:''})
-//* И поскольку состояния selectedSort и seachQuery удалили,
-//* внесем правки и заменим их в колбэках у юзмемо на filter.sort и filter.query
-//
-//* Функци дл получения постов и проверка, есть ли они, тогда сортировка
-// function getSortedPosts() {
-// отсюда логика перенеслаь в useMemo
-// }
-
-//* сортировка с состоянием
-const sortedPosts = useMemo(() => {
-   console.log('отработала функция сортед постс')
-   if(filter.sort) {
-      return  [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]))
-   } else {
-     return posts;
-   }
-},[filter.sort, posts])
-
-const sortAndSearchPosts = useMemo(() => {
-    return sortedPosts.filter((post) => post.title.toLowerCase().includes(filter.query.toLowerCase()))
-}, [filter.query, sortedPosts])
-
-const createPost = (newPost) => {
-   setPosts([...posts, newPost])
-} 
-// получаем пост из дочернего компонента
-const removePost = (post) => {
-   setPosts(posts.filter(p => p.id != post.id))
-}
-
-//* эта функция не нужна - за логику сортировки отвечает PostFilter
-// const sortPosts = (sort) => {
-//    setSelectedSort(sort);
-// setPosts([...posts].sort((a,b) => a[sort].localeCompare(b[sort]))) - это перенесли в sortedPosts
-// }/
-
-return (
-   <div className="app">
-      <PostForm create={createPost} />
-      <hr style={{margin: '15px 0'}}/>
-      <PostFilter 
-        filter={filter} 
-        setFilter={setFilter}
-      />
-      {sortAndSearchPosts.length 
-        ? <PostList remove={removePost} posts={sortAndSearchPosts} title="Список постов по JavaScript"/>
-        : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
-      }      
-   </div>
-  );
-}
-
-export default App;
 
 
-//* Услоная отрисовка:
-// {sortAndSearchPosts.length !== 0
-//    ? <PostList remove={removePost} posts={sortAndSearchPosts} title="Список постов по JavaScript"/>
-//    : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
-//  }      
 //*-----------------------------------------------------
 //* Создаем функцию сортировки sortPosts чтобы вызвать ее в onChange
 //* но мы не можем напрямую сортировать, так как метод сорт мутирует исходный массив
@@ -196,7 +184,7 @@ export default App;
 //* Далее декомпозиция - выделение сортировки и фильтрации в PostFilter()
 //* и в него идет сортировка и поиск MyInput MySelect
 //
-//*создали PostFilter и оздаем в Арр новое состояние [filter, setFilter]
+//*создали PostFilter и создаем в Арр новое состояние [filter, setFilter]
 //* вместо этого, что ниже
 // //*создаем состояние для сортировки
 // const [selectedSort, setSelectedSort] = useState('');  
@@ -208,5 +196,37 @@ export default App;
 //* sort - алгоритм сортировки
 //* query - поисковая строка
 //
-//* так как сотояния searchQuery и selestdSort, то меняем поля на filter.sort
-//* и на filter.query
+//* При этом, состояни selectedSort и seachQuery удаляем и заменяем на filter
+//* Инициализируя его объектом ({sort:'', query:''})
+//* И поскольку состояния selectedSort и seachQuery удалили,
+//* внесем правки и заменим их в колбэках у  useMemo() на filter.sort и filter.query
+//
+//* Функция для получения постов и проверка, есть ли они, тогда сортировка
+//
+// const sortedPosts = useMemo(() => {
+//    if(filter.sort) {
+//      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
+//    } else {
+//       return posts
+//    }
+// }, [filter.sort, posts])
+
+// const sortAndSEarchPosts = useMemo(() => {
+//    return sortedPosts.filter((post) => post.titile.toLowerCase().includes(filter.query.toLowerCase()))
+// }, [filter.query, sortedPosts])
+//
+//* Сейчас есть форма для создания, для фильтрации и список
+//
+//! Это называетс Услова отрисовка!!
+// {posts.length - длина постов есть(посты есть)
+//    ? <PostList remove={removePost} posts={posts} title="Список постов по JavaScript"/>
+//    : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
+//  }
+//
+//*переносим условную отрисовку в сам список постов <PostList />
+//
+//! **** Всплывающее Модальное окно  ****
+//
+//* Переносим форму для создания поста в модальное окно
+
+

@@ -39,3 +39,6 @@ export default PostFilter;
 //* В случае MySelect заменяем поле sort:
 //* Select возвращает НЕ EVENT, а уже выбранный алгоритм сортировки!!!
 //* onChange={selectedSort => setFilter({...filter, sort: selecedSort})}
+//
+//* В этом компоненте может быть еще с десяток инпутов, чекбоксов
+//* оторые сортируют или фильтруют массив!!
