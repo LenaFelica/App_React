@@ -5,6 +5,8 @@
 //    : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
 //  }      
 
+import { getPagesArray } from "./utils/pages";
+
 //* получаем данный из управляемого инпута:
 // const[title, setTitle] = useState('');
 // const[body, setBody] = useState('');
@@ -436,3 +438,153 @@
 //? }
 //
 //*Зделали еще один компонент в UI библотеку
+//* теперь 5 переиспользуемых компонентов!!
+//
+//! **** кастомный хук useFeching.js ***
+//* 
+//* показать , срыть крутилк после запроса
+//* - обработка индикатора загрузки!!
+//* - обработка колбэка!!
+//* - обработка ошибки!!
+//* - возврааем массив из 3х элементов и сможем его деструкторизировать подобным usesatet образом!!!!!
+//* Этим массивом внутри любого компонента можем управлять как хотим!!
+//
+// import { useState } from "react"
+
+// export const useFetching = (callback) => {
+//       const [isLooading, setIsLoading] = useState(false);
+//       const [error, setError] = useState('');
+
+//       const fetching = async() => {
+//          try {
+//             setIsLoading(true)
+//             await callback();
+//          } catch (e) {
+//             setError(e.message);
+//          } finally {
+//             setIsLoading(false)
+//          }
+//       }
+
+// return [fetching, isLoading, error] - возврааем , чтобы деструкторизацией вызвать где надо, например в Арр
+// }
+
+//* идем в Арр
+//* это нам состояние уже не нужно
+//  const [isPostsLoading, setIsPostsLoading] = useState(false)
+//* делаем деструкторизацию и вызываем useFetching
+//* const [] = useFetching(async() =>{
+//   юда переносим - получить посты с сервера и застить их в состояние
+//})
+//* это уже не нужно, все перенесли в useFetching выше
+// async function fetchPosts() {
+//    setIsPostsLoading(true)
+//    const posts = await PostService.getAll();
+//    setPosts(posts);
+//    setIsPostsLoading(false)
+// }
+//* Вот чо в Арр:
+// const [fetchPosts, isPostsLoading, postError] = useFetching(async() => {
+//    const posts = await PostService.getAll();
+//    setPosts(posts);
+//   })
+//
+//* и функцию fetchPosts вызыва5ем уже в useEffect
+//* а за показ индикатора отвечает хук
+
+//!  ******   Пагинация - потраничный вывод*****
+//
+//* На 10 потов на странице
+//*
+//* Открываем jsonplaceholder и дабавляем пару query параметров
+//* прямо через запяту после ура
+//* {params:
+//*   limit:_limit=10 - сколько постов на страниц
+//*   page:_page - на какой сттранице
+//}
+//* в поисковой строке это выглядит так:
+//* сначала ? - как разделитель урла и параметров, и указатель тогго, что дальше query параметры
+//* & - разделитель параметров
+//*https://jsonplaceholder.typicode.com/posts?_limit=10&_page=2
+
+//* если зайти в консоле, открыть headers, 
+//* то увидим x -total- count 100  - это общее кол-во страниц
+//* на основании этого мы можем посчитать сколько надо постов на странице и получать посты частями
+//* новую порцию данных при нажатии на страницву
+//* В PostSevice добавляем квери параметры
+//* А также будем возвращать сам response без data
+//* так как надо будет обращаться к headers и вытаскиать общее кол-во посстов
+
+//* а в Арр вместо posts в запросе будем получато response !!!!
+//* и в посты мы будет сетить теперь поле data у response
+//
+//*Теперь создае состояние, в коорое мы будем помещать общее кол-во постов - 
+//* const [totalCount и setTotlCount] = useState(0) - по умолчанию 0
+//*вызываем функцию поле того как получили поле dta у респон
+//* обащаемся к хедерам и получаем x-total-count
+//setTotalCount(response.headers['x-total-count'])
+//*пока, если посмотреть в консоле, то там undefined
+//* потому что неуказали query параметры limit и page
+//
+//* поэтому в само сервисе указываем лимит=10 и номер страницы=1
+//* и после урла через запятую передаем эти параметры
+//* в Арр передаем эти параметры в функцию getAll(LIMIT, PAGE)
+//* прежде создаем состояни для лимита и для номера страницы
+//* инициализация - 10 и 1
+//
+//* теперь jsonpaceholder поймет, что мы хотим делать пагинацию и вернет x-total-count
+//* сразу в логах мы получаем число 100 - это общее кол-во страниц
+//* поделив число на лимит, получим кол-во страниц
+//
+//* в приложении может быть 10-15 разных компонентов, где будем реализовывать пагинацию
+//* вынесем ее в отдельный блок
+//* utils => pages.js (работа с датами, форматирование, работа со строками, с ол-вом страниц)
+//* ункция аргументом будет принимать общее кол-во элементов и возвращать необходимое кол-во страниц
+//* export const getPageCount = (totalCount, limit) => {
+ //       retun Math.ceil(totalCount / limit) //округляем в большую строну
+//}
+//* если у насс будет больше 100 постов, то надо округить так, чтобы была 11 страница и на ней отобразить оставшиеся посты
+//
+//* состояние totalCount переименовываемв totalPages и хранить там общее кол-во страниц
+//* и в запросе const totalCount = esponse.headers['x-total-count']
+//* setTotalPages(gtPageCount(totalCount, limit))
+//
+//* pages.js^
+// export const getPageCount = (totalCount, limit) => {
+//    return Math.ceil(totalCount / limit)
+// }
+//
+//* App
+// const [fetchPosts, isPostsLoading, postError] = useFetching(async() => {
+//    const response = await PostService.getAll(limit, page);
+//    setPosts(response.data);
+//    const totalCount = response.headers['x-total-count']
+//    setTotalPages(getPageCount(totalCount, limit))
+//   })
+//
+//* Теперь зная кол-во страниц, можем сформировать массив, в котором значчения идут от 1 до 10
+//* И на основании этого массива нарисовать кнопки, при нажатии на которы будет меняться страница
+// let pagesArray = []
+// for (let i = 0; i < totalPages; i++) {
+//     pagesArray.push(i + 1)
+// }
+//
+//* теперь сделаем декомпозицию и вынесем  функционал по заполнению массива в отдельную ункцию
+//* поместим ее таже в pages.js
+//export const getPagesArray = (totalPages) => {
+//    let res = [];
+//    for (let i = 0; i < totalPages; i++) {
+//        res.push(i + 1)
+//    }
+//    return res;
+// }
+//
+//* App:
+//let pagesArray = getPagesArray(totalPages);
+//
+//* Теперь отрисуе кнопки
+//* у нас есть массив pagesArray, мы с помощью map по нему итерируемся (в етерне, в Арр)
+//* и для аждого элемента создаем кнопку и внутрь кнопки помещаем номер страницы
+// {getPagesArray.map(p => 
+//    <MyButton style={{margin: 15 0}}>{p}</MyButton>
+//    )}

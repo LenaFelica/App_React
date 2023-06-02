@@ -8,16 +8,29 @@ import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import Loader from "./components/UI/loader/Loader";
 import MyModal from "./components/UI/modal/MyModal";
+import { useFetching } from "./hooks/useFetching";
 import { usePosts } from "./hooks/usePosts";
+import { getPageCount, getPagesArray } from "./utils/pages";
 
 
 function App() {
   const [posts, setPosts] = useState([])
   const [filter, setFilter] = useState({sort: '', query:''})
   const [modal, setModal] = useState(false)
-  const sortAndSearchPosts = usePosts(posts, filter.sort, filter.query)
-  const [isPostsLoading, setIsPostsLoading] = useState(false)
+  const [totalPages, setTotalPages] = useState(0)
+  const [limit, setLimit] = useState(10)
+  const [page, setPage] = useState(1)
 
+  const sortAndSearchPosts = usePosts(posts, filter.sort, filter.query)
+
+  let pagesArray = getPagesArray(totalPages);
+
+  const [fetchPosts, isPostsLoading, postError] = useFetching(async() => {
+   const response = await PostService.getAll(limit, page);
+   setPosts(response.data);
+   const totalCount = response.headers['x-total-count']
+   setTotalPages(getPageCount(totalCount, limit))
+  })
 
 useEffect(() => {
    fetchPosts()
@@ -29,12 +42,6 @@ const createPost = (newPost) => {
    setModal(false)
 } 
 
-async function fetchPosts() {
-   setIsPostsLoading(true)
-   const posts = await PostService.getAll();
-   setPosts(posts);
-   setIsPostsLoading(false)
-}
 
 // получаем пост из дочернего компонента
 const removePost = (post) => {
@@ -61,11 +68,25 @@ return (
         filter={filter} 
         setFilter={setFilter}
       />
+      {postError &&
+         <h1>Произошла ошибка ${postError}</h1>
+      }
       {isPostsLoading 
       ?<div style={{display: 'flex', justifyContent:'center', marginTop: 50}}> <Loader /></div>
       : <PostList remove={removePost} posts={sortAndSearchPosts} title="Список постов по JavaScript"/>
       }
-      
+      <div className="page__wrapper">   
+      {pagesArray.map(p => 
+         <span 
+            onClick={() => setPage(p)}
+            key={p} 
+            className={p === page ? 'page page__current' : 'page'}
+         >
+             {p}
+         </span>
+      )}
+      </div>
+          
    </div>
   );
 }
