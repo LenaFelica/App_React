@@ -50,11 +50,11 @@ export default MyModal;
 //* в MyModal vsible={modal} setVisible={setModal}
 //* Выше кнопка - добавить пост, и при нажатии на нее будет встплывать модалка
 //* Вешаем слушатель события onClick
-{/* <MyButton style={{marginTop: 15}}
-onClick={() => setModal(true)}
->
-Добавить пост
-</MyButton> */}
+//<MyButton style={{marginTop: 15}}
+//onClick={() => setModal(true)}
+//>
+//Добавить пост
+//</MyButton> 
 //
 //* Реализовать закрытие окна после добавления поста!!!
 //* в Арр в createPost засетить в состояние false setModal(false)
