@@ -385,3 +385,54 @@
 //}
 // }
 //* в Арр в функции fetchPosts вместо axios.get обращаемся к PostService.getAll()
+
+//
+//*! *****  isPostsLoading **** индикатор загрузки - крутилка
+//
+//* Создаем состояние и по умолчанию оно false
+//const [isPostsLoading, setIsPostsLoading] = useState(false)
+//* Далее, добавляем его изменение в fetcPosts()
+//* Перед тем как отправить запрос - true
+//setIsPostsLoading(true)
+//* Посл того, как запрос закончился снова false
+//
+//* в шаблоне (в ретерне в Арр) отрисовываем
+//* над списком постов длаем условие
+//* проверим {isPostsLoading ? <h1>Идет загрузка</h1> :  <PostList .../>}
+//
+//! Пополняем UI бибилотеку - Loader.jsx и Loader.module.css
+//
+//* и css файл для изолции стилей!!! там создаеся файл с уникальным номером
+//
+//*Пишем стили для крутилки
+//  .loader {
+//    width:100px;
+//    height:100px;
+//    border-radius: 50%;
+//    border: 1px dshed peal
+// }
+//
+//* и этот компонент вставлем в Арр в шаблон вместо Идет загрузка
+//
+///* пишем стили для крутилки 
+//* Добавляем анимацию крутилке
+//* В стилях пишем ключевые кадры для анимации
+//* слово и название аниации
+//? .loader {
+//?    width: 100px;
+//?    height: 100px;
+//?    border-radius: 50%;
+//?    border: 3px dashed teal;
+//?    animation: rotate 1s infinite linear ;
+//? }
+
+//? @keyframes rotate {
+//?    from {
+//?       transform: rotate(0deg) scale(1);
+//?    }
+//?    to {
+//?       transform: rotate(360deg) scale(1.4);
+//?    }  
+//? }
+//
+//*Зделали еще один компонент в UI библотеку
