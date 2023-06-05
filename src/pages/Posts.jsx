@@ -11,10 +11,6 @@ import { useFetching } from "../hooks/useFetching";
 import { usePosts } from "../hooks/usePosts";
 import { getPageCount } from "../utils/pages";
 
-
-
-
-
 function Posts() {
   const [posts, setPosts] = useState([])
   const [filter, setFilter] = useState({sort: '', query:''})
